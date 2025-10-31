@@ -33,10 +33,8 @@ if (count(array_filter($arrayRutas)) == 2) {
             );
 
 
-
-
             $cursos = new ControladorCursos();
-            $cursos->create();
+            $cursos->create($datos);
 
 
 
