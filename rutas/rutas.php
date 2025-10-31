@@ -35,10 +35,6 @@ if (count(array_filter($arrayRutas)) == 2) {
 
             $cursos = new ControladorCursos();
             $cursos->create($datos);
-
-
-
-
         } else if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'GET') {
             $cursos = new ControladorCursos();
             $cursos->index();
@@ -79,8 +75,17 @@ if (count(array_filter($arrayRutas)) == 2) {
 
         // PETICION PUT
         if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'PUT') {
+
+            //Capturar datos
+            $datos = array();
+            
+            parse_str(file_get_contents('php://input'), $datos);
+
+
+
+
             $editarCursos = new ControladorCursos();
-            $editarCursos->update(array_filter($arrayRutas)[4]);
+            $editarCursos->update(array_filter($arrayRutas)[4], $datos);
         }
 
         //PETICION DELETE

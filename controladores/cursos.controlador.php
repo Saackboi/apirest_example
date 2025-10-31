@@ -16,7 +16,7 @@ class ControladorCursos
 
 
             foreach ($clientes as $key => $valueCliente) {
-                if (base64_encode($_SERVER['PHP_AUTH_USER'] . ":" . $_SERVER['PHP_AUTH_PW'] == $valueCliente['id_cliente'] . ":" . $valueCliente['llave_secreta'])) {
+                if (base64_encode($_SERVER['PHP_AUTH_USER'] . ":" . $_SERVER['PHP_AUTH_PW']) == base64_encode($valueCliente['id_cliente'] . ":" . $valueCliente['llave_secreta'])) {
 
                     //VALIDAR LOS DATOS ENVIADOS
                     foreach ($datos as $key => $valueDatos) {
@@ -141,26 +141,118 @@ class ControladorCursos
      */
     public function show($id)
     {
-        $json = array(
-            "detalle" => "Estas en la vista show curso con id " . $id
-        );
 
-        echo json_encode($json, true);
-        return;
+        //VALIDAR CREDENCIALES DEL CLIENTE
+
+        $clientes = ModeloClientes::index("clientes");
+
+        if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
+
+
+            foreach ($clientes as $key => $valueCliente) {
+                if (base64_encode($_SERVER['PHP_AUTH_USER'] . ":" . $_SERVER['PHP_AUTH_PW']) == base64_encode($valueCliente['id_cliente'] . ":" . $valueCliente['llave_secreta'])) {
+
+                    //MOSTRAR CURSOS
+                    $curso = ModeloCursos::show("cursos", $id);
+
+                    if (!empty($curso)) {
+                        $json = array(
+                            "status" => 200,
+                            "detalle" => $curso
+                        );
+
+                        echo json_encode($json, true);
+                        return;
+                    } else {
+                        $json = array(
+                            "status" => 404,
+                            "detalle" => "No hay ningún curso registrado."
+                        );
+
+                        echo json_encode($json, true);
+                        return;
+                    }
+                }
+            }
+        }
     }
 
 
     /**
      * Petición PUT para actualizar un curso por ID
      */
-    public function update($id)
+    public function update($id, $datos)
     {
-        $json = array(
-            "detalle" => "curso actualizado con id " . $id
-        );
+        //VALIDAR CREDENCIALES DEL CLIENTE
 
-        echo json_encode($json, true);
-        return;
+        $clientes = ModeloClientes::index("clientes");
+
+        if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
+
+
+            foreach ($clientes as $key => $valueCliente) {
+                if (base64_encode($_SERVER['PHP_AUTH_USER'] . ":" . $_SERVER['PHP_AUTH_PW']) == base64_encode($valueCliente['id_cliente'] . ":" . $valueCliente['llave_secreta'])) {
+
+                    //VALIDAR LOS DATOS ENVIADOS
+                    foreach ($datos as $key => $valueDatos) {
+
+                        if (isset($valueDatos) && !preg_match('/^[(\\)\\=\\&\\$\\;\\-\\_\\*\\"\\<\\>\\?\\¿\\!\\¡\\:\\,\\.\\0-9a-zA-ZñÑáéíóúÁÉÍÓÚ ]*$/i', $valueDatos)) {
+
+                            $json = array(
+                                "status" => 404,
+                                "detalle" => "Error en el campo " . $key
+                            );
+
+                            echo json_encode($json, true);
+
+                            return;
+                        }
+                    }
+
+                    //VALIDAR ID DE CREADOR
+
+                    $curso = ModeloCursos::show("cursos", $id);
+
+                    foreach ($curso as $key => $valueCurso) {
+
+                        if ($valueCurso->id_creador == $valueCliente["id"]) {
+
+                            //Agrupar datos para el modelo
+                            $datosUpdate = array(
+                                "id" => $id,
+                                "titulo" => $datos["titulo"],
+                                "descripcion" => $datos["descripcion"],
+                                "instructor" => $datos["instructor"],
+                                "imagen" => $datos["imagen"],
+                                "precio" => $datos["precio"],
+                                "updated_at" => date('Y-m-d h:i:s')
+                            );
+
+                            //ENVIAR DATOS AL MODELO
+                            $update = ModeloCursos::update("cursos", $datosUpdate);
+
+                            if ($update == "ok") {
+                                $json = array(
+                                    "status" => 200,
+                                    "detalle" => "Actualización exitosa, su curso ha sido actualizado."
+                                );
+
+                                echo json_encode($json, true);
+                                return;
+                            }
+                        }  else {
+                                $json = array(
+                                    "status" => 404,
+                                    "detalle" => "No está autorizado para modificar este curso."
+                                );
+
+                                echo json_encode($json, true);
+                                return;
+                            }
+                    }
+                }
+            }
+        }
     }
 
     /**
