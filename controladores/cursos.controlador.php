@@ -36,7 +36,7 @@ class ControladorCursos
 
                     //VALIDAR QUE TITULO Y DESCRIPCIÓN NO ESTEN REPETIDOS
 
-                    $cursos = ModeloCursos::index("cursos");
+                    $cursos = ModeloCursos::index("cursos", "clientes");
 
                     foreach ($cursos as $key => $value) {
                         if ($datos["titulo"] == $value->titulo) {
@@ -121,7 +121,7 @@ class ControladorCursos
 
                 if (base64_encode($_SERVER['PHP_AUTH_USER'] . ":" . $_SERVER['PHP_AUTH_PW'] == $value['id_cliente'] . ":" . $value['llave_secreta'])) {
 
-                    $cursos = ModeloCursos::index("cursos");
+                    $cursos = ModeloCursos::index("cursos", "clientes");
 
                     $json = array(
 
@@ -153,7 +153,7 @@ class ControladorCursos
                 if (base64_encode($_SERVER['PHP_AUTH_USER'] . ":" . $_SERVER['PHP_AUTH_PW']) == base64_encode($valueCliente['id_cliente'] . ":" . $valueCliente['llave_secreta'])) {
 
                     //MOSTRAR CURSOS
-                    $curso = ModeloCursos::show("cursos", $id);
+                    $curso = ModeloCursos::show("cursos", "clientes", $id);
 
                     if (!empty($curso)) {
                         $json = array(
@@ -211,7 +211,7 @@ class ControladorCursos
 
                     //VALIDAR ID DE CREADOR
 
-                    $curso = ModeloCursos::show("cursos", $id);
+                    $curso = ModeloCursos::show("cursos", "clientes", $id);
 
                     foreach ($curso as $key => $valueCurso) {
 
@@ -268,7 +268,7 @@ class ControladorCursos
                  if (base64_encode($_SERVER['PHP_AUTH_USER'] . ":" . $_SERVER['PHP_AUTH_PW']) == base64_encode($valueCliente['id_cliente'] . ":" . $valueCliente['llave_secreta'])){
 
                     //VALIDAR ID CREADOR
-                    $curso = ModeloCursos::show("cursos", $id);
+                    $curso = ModeloCursos::show("cursos", "clientes", $id);
 
                     foreach ($curso as $key => $valueCurso){
                          if ($valueCurso->id_creador == $valueCliente["id"]){
