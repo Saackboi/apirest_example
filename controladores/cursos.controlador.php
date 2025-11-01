@@ -260,6 +260,39 @@ class ControladorCursos
      */
     public function delete($id)
     {
+        //VALIDAR CREDENCIALES DEL CLIENTE
+        $clientes = ModeloClientes::index("clientes");
+
+        if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])){
+             foreach ($clientes as $key => $valueCliente){
+                 if (base64_encode($_SERVER['PHP_AUTH_USER'] . ":" . $_SERVER['PHP_AUTH_PW']) == base64_encode($valueCliente['id_cliente'] . ":" . $valueCliente['llave_secreta'])){
+
+                    //VALIDAR ID CREADOR
+                    $curso = ModeloCursos::show("cursos", $id);
+
+                    foreach ($curso as $key => $valueCurso){
+                         if ($valueCurso->id_creador == $valueCliente["id"]){
+
+                            $delete = ModeloCursos::delete("cursos", $id);
+
+                            if ($delete == "ok"){
+                                $json = array(
+                                    "status" => 200,
+                                    "detalle" => "Curso eliminado correctamente"
+                                );
+
+                                echo json_encode($json, true);
+                                return;
+                            }
+
+                         }
+                    }
+                 }
+             }
+        }
+
+
+
         $json = array(
             "detalle" => "curso eliminado con id " . $id
         );

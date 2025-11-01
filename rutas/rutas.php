@@ -90,6 +90,7 @@ if (count(array_filter($arrayRutas)) == 2) {
 
         //PETICION DELETE
         if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'DELETE') {
+            
             $borrarCursos = new ControladorCursos();
             $borrarCursos->delete(array_filter($arrayRutas)[4]);
         }
