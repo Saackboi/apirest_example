@@ -2,6 +2,12 @@
 // DETECTAR URL
 $arrayRutas = explode("/", $_SERVER['REQUEST_URI']);
 
+if (isset($_GET["pagina"]) && is_numeric($_GET["pagina"])) {
+
+    $cursos = new ControladorCursos();
+    $cursos->index($_GET["pagina"]);
+}
+
 // CUANDO NO SE HACE PETICIÓN A LA API
 if (count(array_filter($arrayRutas)) == 2) {
 
@@ -37,7 +43,7 @@ if (count(array_filter($arrayRutas)) == 2) {
             $cursos->create($datos);
         } else if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'GET') {
             $cursos = new ControladorCursos();
-            $cursos->index();
+            $cursos->index(null);
         }
     }
 
@@ -78,7 +84,7 @@ if (count(array_filter($arrayRutas)) == 2) {
 
             //Capturar datos
             $datos = array();
-            
+
             parse_str(file_get_contents('php://input'), $datos);
 
 
@@ -90,7 +96,7 @@ if (count(array_filter($arrayRutas)) == 2) {
 
         //PETICION DELETE
         if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'DELETE') {
-            
+
             $borrarCursos = new ControladorCursos();
             $borrarCursos->delete(array_filter($arrayRutas)[4]);
         }

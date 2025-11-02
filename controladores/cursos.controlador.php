@@ -36,7 +36,7 @@ class ControladorCursos
 
                     //VALIDAR QUE TITULO Y DESCRIPCIÓN NO ESTEN REPETIDOS
 
-                    $cursos = ModeloCursos::index("cursos", "clientes");
+                    $cursos = ModeloCursos::index("cursos", "clientes", null, null);
 
                     foreach ($cursos as $key => $value) {
                         if ($datos["titulo"] == $value->titulo) {
@@ -108,7 +108,7 @@ class ControladorCursos
     /**
      * Petición GET para mostrar todos los cursos
      */
-    public function index()
+    public function index($pagina)
     {
 
         $clientes = ModeloClientes::index("clientes");
@@ -121,7 +121,17 @@ class ControladorCursos
 
                 if (base64_encode($_SERVER['PHP_AUTH_USER'] . ":" . $_SERVER['PHP_AUTH_PW'] == $value['id_cliente'] . ":" . $value['llave_secreta'])) {
 
-                    $cursos = ModeloCursos::index("cursos", "clientes");
+                    if ($pagina != null) {
+
+                        $cantidad = 10;
+                        $desde = ($pagina - 1) * $cantidad;
+
+                        $cursos = ModeloCursos::index("cursos", "clientes", $cantidad, $desde);
+
+                    } else {
+
+                        $cursos = ModeloCursos::index("cursos", "clientes", null, null);
+                    }
 
                     $json = array(
 
@@ -240,15 +250,15 @@ class ControladorCursos
                                 echo json_encode($json, true);
                                 return;
                             }
-                        }  else {
-                                $json = array(
-                                    "status" => 404,
-                                    "detalle" => "No está autorizado para modificar este curso."
-                                );
+                        } else {
+                            $json = array(
+                                "status" => 404,
+                                "detalle" => "No está autorizado para modificar este curso."
+                            );
 
-                                echo json_encode($json, true);
-                                return;
-                            }
+                            echo json_encode($json, true);
+                            return;
+                        }
                     }
                 }
             }
@@ -263,19 +273,19 @@ class ControladorCursos
         //VALIDAR CREDENCIALES DEL CLIENTE
         $clientes = ModeloClientes::index("clientes");
 
-        if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])){
-             foreach ($clientes as $key => $valueCliente){
-                 if (base64_encode($_SERVER['PHP_AUTH_USER'] . ":" . $_SERVER['PHP_AUTH_PW']) == base64_encode($valueCliente['id_cliente'] . ":" . $valueCliente['llave_secreta'])){
+        if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
+            foreach ($clientes as $key => $valueCliente) {
+                if (base64_encode($_SERVER['PHP_AUTH_USER'] . ":" . $_SERVER['PHP_AUTH_PW']) == base64_encode($valueCliente['id_cliente'] . ":" . $valueCliente['llave_secreta'])) {
 
                     //VALIDAR ID CREADOR
                     $curso = ModeloCursos::show("cursos", "clientes", $id);
 
-                    foreach ($curso as $key => $valueCurso){
-                         if ($valueCurso->id_creador == $valueCliente["id"]){
+                    foreach ($curso as $key => $valueCurso) {
+                        if ($valueCurso->id_creador == $valueCliente["id"]) {
 
                             $delete = ModeloCursos::delete("cursos", $id);
 
-                            if ($delete == "ok"){
+                            if ($delete == "ok") {
                                 $json = array(
                                     "status" => 200,
                                     "detalle" => "Curso eliminado correctamente"
@@ -284,11 +294,10 @@ class ControladorCursos
                                 echo json_encode($json, true);
                                 return;
                             }
-
-                         }
+                        }
                     }
-                 }
-             }
+                }
+            }
         }
 
 

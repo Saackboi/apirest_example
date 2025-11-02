@@ -10,10 +10,16 @@ class ModeloCursos
      * @param string $tabla El nombre de la tabla.
      * @return array Un array de objetos con todos los cursos.
      */
-    static public function index($tabla, $tabla2)
+    static public function index($tabla, $tabla2, $cantidad, $desde)
     {
 
-        $stmt = Conexion::conectar()->prepare("SELECT $tabla.id, $tabla.titulo, $tabla.descripcion, $tabla.instructor, $tabla.imagen, $tabla.precio, $tabla.id_creador, $tabla2.primer_nombre, $tabla2.primer_apellido FROM $tabla INNER JOIN $tabla2 ON $tabla.id_creador = $tabla2.id");
+        if ($cantidad != null) {
+
+            $stmt = Conexion::conectar()->prepare("SELECT $tabla.id, $tabla.titulo, $tabla.descripcion, $tabla.instructor, $tabla.imagen, $tabla.precio, $tabla.id_creador, $tabla2.primer_nombre, $tabla2.primer_apellido FROM $tabla INNER JOIN $tabla2 ON $tabla.id_creador = $tabla2.id LIMIT $desde, $cantidad");
+        } else {
+
+            $stmt = Conexion::conectar()->prepare("SELECT $tabla.id, $tabla.titulo, $tabla.descripcion, $tabla.instructor, $tabla.imagen, $tabla.precio, $tabla.id_creador, $tabla2.primer_nombre, $tabla2.primer_apellido FROM $tabla INNER JOIN $tabla2 ON $tabla.id_creador = $tabla2.id");
+        }
 
         $stmt->execute();
 
